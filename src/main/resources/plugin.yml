@@ -1,0 +1,17 @@
+name: Ban
+version: '${project.version}'
+main: de.darthweiter.banplugin.BanPlugin
+api-version: 1.15
+authors: [ darthweiter ]
+description: Ein BanPlugin für playlegend
+
+commands:
+  ban-own-uuid:
+    description: Dieser Befehl bannt einen spieler
+  unban-own-uuid:
+    description: hebt Sperre des Spielers auf
+
+permissions:
+  de.darthweiter.banplugin.staff:
+    description: Staff-Member für Erweiterte Funktionen
+    default: op
