@@ -19,9 +19,12 @@ public final class BanPlugin extends JavaPlugin {
         // Plugin startup logic
         registerCommands();
         registerEvents();
+
         Configuration.generateConfigFile();
         DataSourceFactory.generateDBFile();
-
+        if (!Database.tableExists("spieleruebersicht")) {
+            Database.createTable();
+        }
         log(Configuration.getInfoMsgOnEnable());
     }
 

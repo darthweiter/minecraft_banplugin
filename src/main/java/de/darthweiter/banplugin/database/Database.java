@@ -25,6 +25,49 @@ public class Database {
     private Database() {
     }
 
+    public static boolean tableExists(String tableName) {
+        boolean found = false;
+        try {
+            DatabaseMetaData databaseMetaData = connectionPool.getConnection().getMetaData();
+            ResultSet rs = databaseMetaData.getTables(null, null, "spieleruebersicht", null);
+            while (rs.next()) {
+                String name = rs.getString("SPIELERUEBERSICHT");
+                if (tableName.equals(name)) {
+                    found = true;
+                    break;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return found;
+    }
+
+    public static void createTable() {
+        String sql = "CREATE TABLE spieleruebersicht " +
+                "( uuid VARCHAR(36) NOT NULL , " +
+                "name VARCHAR(100) NOT NULL , " +
+                "last_ip VARCHAR(100) NOT NULL , " +
+                "last_login TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, " +
+                "is_banned BOOLEAN NOT NULL DEFAULT FALSE , " +
+                "ban_reason VARCHAR(100) NULL DEFAULT NULL , " +
+                "ban_expires_time TIMESTAMP NULL DEFAULT NULL , " +
+                "is_permanent BOOLEAN NOT NULL DEFAULT FALSE , " +
+                "banned_by VARCHAR(100) NULL DEFAULT NULL ," +
+                "last_modified TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , " +
+                "PRIMARY KEY (`uuid`))";
+        try {
+            Connection con = connectionPool.getConnection();
+            Statement stmt = con.createStatement();
+            stmt.executeUpdate(sql);
+            stmt.close();
+            connectionPool.releaseConnection(con);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static Map<String, String> selectUUID(String uuid) {
         Map<String, String> result = null;
         StringBuilder sql = new StringBuilder();
