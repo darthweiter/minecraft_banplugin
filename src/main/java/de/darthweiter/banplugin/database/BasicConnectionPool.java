@@ -16,6 +16,11 @@ public class BasicConnectionPool {
         this.maxPoolSize = maxPoolSize;
     }
 
+    /**
+     * Create the DB Connection.
+     *
+     * @return the DB Connection or null if an Error occurs.
+     */
     private static Connection createConnection() {
         try {
             return DataSourceFactory.getMySQLDataSource().getConnection();
@@ -25,6 +30,13 @@ public class BasicConnectionPool {
         }
     }
 
+    /**
+     * Creates the Basic Connection tool.
+     *
+     * @param maxPoolSize the maximal number of Connection in the Pool.
+     * @return the Connection Pool with n Connection.
+     * @throws RuntimeException if there is no Connection in the Pool.
+     */
     public static BasicConnectionPool create(int maxPoolSize) {
         int initial = maxPoolSize / 2;
         List<Connection> pool = new ArrayList<>(initial);
@@ -40,17 +52,18 @@ public class BasicConnectionPool {
         return new BasicConnectionPool(pool, maxPoolSize);
     }
 
-    public int getSize() {
-        return connectionPool.size() + usedConnections.size();
-    }
-
+    /**
+     * Gets the first Idle Connection of the Pool, if the Pool is empty, a new Connection is created if maxPoolSize not
+     * Reached.
+     *
+     * @return The SQL-Connection
+     * @throws SQLException if the value supplied for timeout is less than 0
+     */
     public Connection getConnection() throws SQLException {
-        if (connectionPool.isEmpty()) {
-            if (usedConnections.size() < maxPoolSize) {
-                Connection con = createConnection();
-                if (con != null) {
-                    connectionPool.add(createConnection());
-                }
+        if (connectionPool.isEmpty() && usedConnections.size() < maxPoolSize) {
+            Connection con = createConnection();
+            if (con != null) {
+                connectionPool.add(createConnection());
             }
         }
 
@@ -68,6 +81,12 @@ public class BasicConnectionPool {
         return connection;
     }
 
+    /**
+     * Release the Connection and add it to the Pool;
+     *
+     * @param connection the current SQL-Connection
+     * @return true if the Connection is released otherwise false.
+     */
     public boolean releaseConnection(Connection connection) {
         connectionPool.add(connection);
         return usedConnections.remove(connection);

@@ -5,13 +5,15 @@ import de.darthweiter.banplugin.commands.unban.UnbanUUIDCommand;
 import de.darthweiter.banplugin.configuration.Configuration;
 import de.darthweiter.banplugin.database.DataSourceFactory;
 import de.darthweiter.banplugin.database.Database;
-import de.darthweiter.banplugin.events.EventListener;
+import de.darthweiter.banplugin.events.PlayerJoin;
+import de.darthweiter.banplugin.events.PrePlayerLogin;
+import de.darthweiter.banplugin.thread.ThreadPooling;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BanPlugin extends JavaPlugin {
 
-    public static String PREFIX = "§aBanPlugin §7§o";
+    public static final String PREFIX = "§aBanPlugin §7§o";
 
 
     @Override
@@ -19,6 +21,7 @@ public final class BanPlugin extends JavaPlugin {
         // Plugin startup logic
         registerCommands();
         registerEvents();
+        ThreadPooling.init();
 
         Configuration.generateConfigFile();
         DataSourceFactory.generateDBFile();
@@ -47,7 +50,8 @@ public final class BanPlugin extends JavaPlugin {
     }
 
     private void registerEvents() {
-        Bukkit.getPluginManager().registerEvents(new EventListener(), this);
+        Bukkit.getPluginManager().registerEvents(new PrePlayerLogin(), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoin(), this);
     }
 
 }

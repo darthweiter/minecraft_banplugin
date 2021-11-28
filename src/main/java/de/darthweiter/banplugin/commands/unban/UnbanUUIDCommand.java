@@ -32,9 +32,11 @@ public class UnbanUUIDCommand implements CommandExecutor {
                 BanPlugin.log(successMessage);
             } catch (Exception e) {
                 sender.sendMessage(Configuration.getErrorMsgUnban());
+                BanPlugin.log(Configuration.getErrorMsgUnban());
             }
         } else {
             sender.sendMessage(Configuration.getErrorMsgUnban());
+            BanPlugin.log(Configuration.getErrorMsgUnban());
         }
         return false;
     }

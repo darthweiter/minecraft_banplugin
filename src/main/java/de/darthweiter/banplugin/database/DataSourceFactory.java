@@ -24,6 +24,10 @@ public class DataSourceFactory {
     private DataSourceFactory() {
     }
 
+    /**
+     * Init db.Properties with default values, load the db.properties and update the values.
+     * The updated key/value pairs are written.
+     */
     public static void generateDBFile() {
         initDatabaseMap();
         File directory = FileIO.loadDirectory("database");
@@ -41,10 +45,18 @@ public class DataSourceFactory {
         MYSQL_DATA_SOURCE.setPassword(databaseMap.get(MYSQL_PASSWORD));
     }
 
+    /**
+     * Get the Actual MySqlDataSource
+     *
+     * @return the MySqlDataSource
+     */
     public static DataSource getMySQLDataSource() {
         return MYSQL_DATA_SOURCE;
     }
 
+    /**
+     * Default Values of the keys.
+     */
     private static void initDatabaseMap() {
         databaseMap.put(MYSQL_URL, "The Url to the database");
         databaseMap.put(MYSQL_USERNAME, "The Username to connect to the Mysql-Database");

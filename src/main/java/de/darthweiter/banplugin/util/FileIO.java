@@ -13,6 +13,14 @@ public class FileIO {
     private FileIO() {
     }
 
+    /**
+     * Creates the File and Directory
+     *
+     * @param directory the Directory to create
+     * @param fileName  the File to create
+     * @param data      the Data of the File.
+     * @return true if file was created, otherwise false.
+     */
     public static boolean createFile(File directory, String fileName, Map<String, String> data) {
 
         String filePath;
@@ -31,7 +39,13 @@ public class FileIO {
         return fileWrite(file, data);
     }
 
-
+    /**
+     * Write Data to a File
+     *
+     * @param file        the File to write Data to.
+     * @param mapWithData The Map with Data.
+     * @return true if Data was written to the file, otherwise false.
+     */
     private static boolean fileWrite(File file, Map<String, String> mapWithData) {
         try (FileWriter fw = new FileWriter(file.getAbsoluteFile());
              BufferedWriter bw = new BufferedWriter(fw)) {
@@ -64,6 +78,12 @@ public class FileIO {
         }
     }
 
+    /**
+     * Creat the Directory with the directory Path
+     *
+     * @param directoryPath the Path of the directory
+     * @return true if directory exist otherwise false.
+     */
     private static boolean createDirectory(String directoryPath) {
         File directory = new File(directoryPath);
 

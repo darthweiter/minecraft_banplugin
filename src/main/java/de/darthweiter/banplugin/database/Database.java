@@ -25,6 +25,12 @@ public class Database {
     private Database() {
     }
 
+    /**
+     * Checks if Table exist or not.
+     *
+     * @param tableName the name of the Table.
+     * @return true, if the Table exist, otherwise false.
+     */
     public static boolean tableExists(String tableName) {
         boolean found = false;
         try {
@@ -37,6 +43,10 @@ public class Database {
         return found;
     }
 
+    /**
+     * SQL-Statement for Creating the Table spieleruebersicht
+     * To Store all Player Infos.
+     */
     public static void createTable() {
         String sql = "CREATE TABLE spieleruebersicht " +
                 "( uuid VARCHAR(36) NOT NULL , " +
@@ -62,6 +72,14 @@ public class Database {
         }
     }
 
+    /**
+     * A Select with the uuid as Key.
+     * All relevant Information for Access Validation is returned.
+     *
+     * @param uuid the UUID to find in the Database
+     * @return A Map with Key and Value as String.
+     * Contains is_Banned, ban_reason, ban_expires_time, is_Permanent as Key
+     */
     public static Map<String, String> selectUUID(String uuid) {
         Map<String, String> result = null;
         StringBuilder sql = new StringBuilder();
@@ -101,6 +119,16 @@ public class Database {
         return result;
     }
 
+    /**
+     * SQL-Statement to Update all relevant Information for Ban
+     *
+     * @param uuid           the uuid to Update
+     * @param reason         the Ban-Reason
+     * @param expires        the expires Time for the ban or null for permanent
+     * @param isBanned       true if the player is banned, false if not
+     * @param isPermanent    true if expires Time is null and the player is banned, otherwise false
+     * @param nameOfExecutor the Name of the User, who executed the Command.
+     */
     public static void updateBanInfosWithUUID(String uuid, String reason, Timestamp expires, boolean isBanned, boolean isPermanent, String nameOfExecutor) {
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE spieleruebersicht ").append("SET ")
@@ -131,6 +159,14 @@ public class Database {
         }
     }
 
+    /**
+     * If there is no Entry with the uuid a new one will insert, otherwise update the Player Information
+     *
+     * @param uuid      the uuid to insert or update
+     * @param name      the name of the player
+     * @param ipAddress the ipAddress of the player
+     * @param lastLogin the last login Time of the Player
+     */
     public static void insertNewEntryOrUpdate(String uuid, String name, String ipAddress, Timestamp lastLogin) {
         StringBuilder sql = new StringBuilder();
 
@@ -152,8 +188,7 @@ public class Database {
                 .append("ON DUPLICATE KEY UPDATE").append(SPACE)
                 .append(SQL_NAME).append(EQUAL).append(QUESTION_MARK).append(COMMA)
                 .append(SQL_LAST_IP).append(EQUAL).append(QUESTION_MARK).append(COMMA)
-                .append(SQL_LAST_LOGIN).append(EQUAL).append(QUESTION_MARK).append(COMMA)
-                .append(SQL_IS_BANNED).append(EQUAL).append(QUESTION_MARK);
+                .append(SQL_LAST_LOGIN).append(EQUAL).append(QUESTION_MARK);
 
         try {
             Connection con = connectionPool.getConnection();
@@ -166,7 +201,6 @@ public class Database {
             preStmt.setString(6, name);
             preStmt.setString(7, ipAddress);
             preStmt.setTimestamp(8, lastLogin);
-            preStmt.setBoolean(9, false);
             preStmt.executeUpdate();
             preStmt.close();
             connectionPool.releaseConnection(con);
@@ -175,6 +209,9 @@ public class Database {
         }
     }
 
+    /**
+     * Close all Connections and clear the Pool.
+     */
     public static void shutdownPool() {
         try {
             connectionPool.shutdown();
