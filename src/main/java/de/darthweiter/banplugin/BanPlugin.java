@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class BanPlugin extends JavaPlugin {
 
-    public static String PREFIX = "§aTutorial-Test §7§o";
+    public static String PREFIX = "§aBanPlugin §7§o";
 
 
     @Override
