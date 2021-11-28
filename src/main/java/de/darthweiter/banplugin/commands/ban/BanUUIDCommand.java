@@ -61,24 +61,30 @@ public class BanUUIDCommand implements CommandExecutor {
         } else if (sender.hasPermission("de.darthweiter.banplugin.staff") && argLength > 0) {
             // The uuid is the only argument, which is needed, if no more arguments are presented,
             // the ban is permanent with the default Ban Reason.
-            String stringReason = Util.buildStringReason(reason);
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(target));
-            Player targetPlayer = offlinePlayer.getPlayer();
-            if (targetPlayer != null && offlinePlayer.isOnline()) {
-                targetPlayer.kickPlayer(Configuration.getBanInfoMsg() + ": " + stringReason);
+            try {
+                String stringReason = Util.buildStringReason(reason);
+                OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(UUID.fromString(target));
+                Player targetPlayer = offlinePlayer.getPlayer();
+                if (targetPlayer != null && offlinePlayer.isOnline()) {
+                    targetPlayer.kickPlayer(Configuration.getBanInfoMsg() + ": " + stringReason);
+                }
+                Database.updateBanInfosWithUUID(
+                        target, stringReason, timestamp, true, timestamp == null, sender.getName()
+                );
+                String banSuccessMessage = Configuration.getBanSuccessMessage()
+                        + " "
+                        + Configuration.getLabelBannedPlayer()
+                        + ": "
+                        + offlinePlayer.getName();
+                sender.sendMessage(banSuccessMessage);
+                BanPlugin.log(banSuccessMessage);
+            } catch (Exception e) {
+                sender.sendMessage(Configuration.getErrorMsgBan());
+                BanPlugin.log(Configuration.getErrorMsgBan());
             }
-            Database.updateBanInfosWithUUID(
-                    target, stringReason, timestamp, true, timestamp == null, sender.getName()
-            );
-            String banSuccessMessage = Configuration.getBanSuccessMessage()
-                    + " "
-                    + Configuration.getLabelBannedPlayer()
-                    + ": "
-                    + offlinePlayer.getName();
-            sender.sendMessage(banSuccessMessage);
-            BanPlugin.log(banSuccessMessage);
         } else {
             sender.sendMessage(Configuration.getErrorMsgBan());
+            BanPlugin.log(Configuration.getErrorMsgBan());
         }
         return true;
     }

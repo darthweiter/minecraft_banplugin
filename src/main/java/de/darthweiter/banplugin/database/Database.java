@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Database {
 
-    private static final BasicConnectionPool connectionPool = BasicConnectionPool.create(10);
+    private static final BasicConnectionPool connectionPool = BasicConnectionPool.create(50);
     private static final String COMMA = ",";
     private static final String SPACE = " ";
     private static final String QUESTION_MARK = "?";
@@ -29,14 +29,8 @@ public class Database {
         boolean found = false;
         try {
             DatabaseMetaData databaseMetaData = connectionPool.getConnection().getMetaData();
-            ResultSet rs = databaseMetaData.getTables(null, null, "spieleruebersicht", null);
-            while (rs.next()) {
-                String name = rs.getString("SPIELERUEBERSICHT");
-                if (tableName.equals(name)) {
-                    found = true;
-                    break;
-                }
-            }
+            ResultSet rs = databaseMetaData.getTables(null, null, tableName, null);
+            found = rs.next();
         } catch (SQLException e) {
             e.printStackTrace();
         }
