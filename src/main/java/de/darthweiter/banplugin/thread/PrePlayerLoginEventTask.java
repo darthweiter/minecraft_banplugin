@@ -1,26 +1,33 @@
-package de.darthweiter.banplugin.events;
+package de.darthweiter.banplugin.thread;
 
 import de.darthweiter.banplugin.configuration.Configuration;
 import de.darthweiter.banplugin.database.Database;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.sql.Timestamp;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
-public class EventListener implements Listener {
-    @EventHandler
-    public void onPlayerLogin(AsyncPlayerPreLoginEvent e) {
+public class PrePlayerLoginEventTask implements Callable<String> {
+    private final AsyncPlayerPreLoginEvent event;
 
-        String uuid = e.getUniqueId().toString();
+    public PrePlayerLoginEventTask(AsyncPlayerPreLoginEvent event) {
+        this.event = event;
+    }
+
+    /**
+     * The call Function of the Task.
+     * Loads the Database for AccessValidation, check if a User is banned or allowed to join
+     *
+     * @return The Ban Reason if the Player is banned, otherwise null.
+     */
+    @Override
+    public String call() {
+        String uuid = event.getUniqueId().toString();
 
         Timestamp loginTime = new Timestamp(System.currentTimeMillis());
 
         Map<String, String> resultMap = Database.selectUUID(uuid);
-
         if (resultMap != null) {
             if (Boolean.parseBoolean(resultMap.get(Database.SQL_IS_BANNED))) {
                 boolean permanentBan = Boolean.parseBoolean(resultMap.get(Database.SQL_BAN_IS_PERMANENT));
@@ -48,26 +55,16 @@ public class EventListener implements Listener {
                                 + reason;
 
                 if (banNotExpired) {
-                    e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, message);
+                    return message;
                 } else {
-                    e.allow();
-                    Database.updateBanInfosWithUUID(uuid, null, null, false, false, null);
+                    ThreadPooling.addRunnable(new UpdateBanWithUUIDTask(uuid));
+                    return null;
                 }
             } else {
-                e.allow();
+                return null;
             }
         } else {
-            e.allow();
+            return null;
         }
-    }
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent e) {
-        Player player = e.getPlayer();
-        String uuid = player.getUniqueId().toString();
-        String name = player.getName();
-        String ipAddress = player.getAddress().getAddress().toString();
-        Timestamp loginTime = new Timestamp(System.currentTimeMillis());
-        Database.insertNewEntryOrUpdate(uuid, name, ipAddress, loginTime);
     }
 }
