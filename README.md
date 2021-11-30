@@ -34,7 +34,7 @@ param:
 
 uuid(required): The Players uuid
 
-###Events
+### Events
 
 If the Player trys to Login, the PreLoginEvent will be triggerd. There is a validation, if the player is banned or not.
 
